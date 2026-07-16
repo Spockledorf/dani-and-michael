@@ -1,306 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Who Said It? — A Quote Quiz</title>
-<!-- ============================================================
-     Three files work together, keep them in the same folder:
-       - index.html  (this file — structure and quiz logic)
-       - styles.css  (all visual styling)
-       - quotes.js   (the quotes themselves — edit this for content)
-     ============================================================ -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who Said It?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <main class="stage">
+    
+    <header class="masthead">
+      <div class="eyebrow">Level <span id="level-display">1</span></div>
+      <h1>Who Said It?</h1>
+      <div class="sub">Dani or Michael?</div>
+    </header>
 
-<div class="stage">
-  <div class="masthead">
-    <div class="eyebrow" id="eyebrow-text">Who said it?</div>
-    <h1 id="title-text">The Quote Quiz</h1>
-    <div class="sub" id="sub-text">Guess who said what</div>
-  </div>
-
-  <div class="top-actions">
-    <button class="link-btn" id="show-list-btn">View all quotes</button>
-    <button class="link-btn" id="reset-pool-btn">Reset &amp; reshuffle</button>
-  </div>
-
-  <div class="tabs" id="tabs"></div>
-
-  <div class="card" id="quiz-card">
-    <div class="seal-wrap" id="seal-wrap">
-      <div class="seal" id="seal"></div>
+    <div class="top-actions">
+      <button class="link-btn" id="start-over-btn">Start Over</button>
     </div>
-    <div class="quote-mark">“</div>
-    <div class="quote-text" id="quote-text"></div>
-    <div class="choices" id="choices"></div>
-    <button class="next-btn" id="next-btn">Next quote →</button>
-    <div class="footline">
-      <span id="progress-label"></span>
-      <span id="score-label"></span>
+
+    <div class="tabs" id="progress-tabs"></div>
+
+    <!-- Active Gameplay Card -->
+    <div class="card" id="game-card">
+      <div class="seal-wrap" id="seal-wrap">
+        <div class="seal" id="seal-text">Yes</div>
+      </div>
+      
+      <div class="quote-mark">"</div>
+      <div class="quote-text" id="quote-text">Loading quote...</div>
+      
+      <div class="choices">
+        <button class="choice" id="btn-a">Dani</button>
+        <button class="choice" id="btn-b">Michael</button>
+      </div>
+      
+      <div class="footline">
+        <span id="question-counter">1 of 5</span>
+      </div>
+      
+      <button class="next-btn" id="next-btn">Next Quote</button>
     </div>
-  </div>
 
-  <div class="card results hidden" id="results-card">
-    <div class="eyebrow" style="color:var(--teal)">Final tally</div>
-    <div class="big-score" id="final-score">0</div>
-    <div class="of" id="final-of"></div>
-    <p class="verdict" id="verdict-text"></p>
-    <button class="replay-btn" id="replay-btn">Play again</button>
-    <div class="pool-note" id="pool-note"></div>
-  </div>
-
-  <div class="list-card hidden" id="list-card">
-    <div class="list-header">
-      <span id="list-count"></span>
-      <button class="link-btn" id="back-to-quiz-btn">← Back to quiz</button>
+    <!-- Results Overview -->
+    <div class="card results hidden" id="results-card">
+      <div class="big-score" id="score-display">0</div>
+      <div class="of" id="score-total">of 5</div>
+      <p class="verdict" id="verdict-text"></p>
+      <button class="replay-btn" id="continue-btn">Next Level</button>
+      <div class="pool-note">You must score at least 40% to advance.</div>
     </div>
-    <div id="list-items"></div>
-  </div>
-</div>
 
-<!-- Quotes live in their own file so they're easy to edit -->
-<script src="quotes.js"></script>
-<script>
-/* ============================================================
-   CONFIG — edit names, quiz length, and closing messages here.
-   The actual quotes are in quotes.js, not here.
-   ============================================================ */
-const CONFIG = {
-  partnerA: "Sam",
-  partnerB: "Jess",
-  eyebrow: "Who said it?",
-  title: "The Quote Quiz",
-  subtitle: "Guess which of us said what",
+    <!-- Session History List -->
+    <div class="list-card hidden" id="history-card">
+      <div class="list-header">
+        <span>Quotes From This Round</span>
+        <span>Answer</span>
+      </div>
+      <div id="history-list"></div>
+    </div>
 
-  // How many quotes make up one round. With ~150 quotes in the
-  // pool, 10-12 per round keeps it snappy for party guests.
-  roundLength: 10,
+  </main>
 
-  // Shown at the end, based on score percentage this round.
-  // Lowest threshold the score meets or beats is used — keep
-  // these ordered high to low.
-  verdicts: [
-    { min: 1.0,  text: "Certified expert on both of us. Slightly concerning, mostly impressive." },
-    { min: 0.75, text: "You clearly pay attention. Respect." },
-    { min: 0.5,  text: "A solid guess-timate. You know one of us better than the other." },
-    { min: 0.0,  text: "You had fun, and that's what actually matters here." },
-  ]
-};
-/* ============================================================ */
+  <!-- External Quotes Reference -->
+  <script src="quotes.js"></script>
 
-let pool = [];        // shuffled full quote list, drawn down as rounds are played
-let round = [];        // current round's quotes
-let current = 0;
-let score = 0;
-let answered = false;
-const results = [];
+  <!-- Game Logic Implementation -->
+  <script>
+    const CONFIG = {
+      partnerA: "Dani",
+      partnerB: "Michael"
+    };
 
-const els = {
-  tabs: document.getElementById('tabs'),
-  quoteText: document.getElementById('quote-text'),
-  choices: document.getElementById('choices'),
-  nextBtn: document.getElementById('next-btn'),
-  progressLabel: document.getElementById('progress-label'),
-  scoreLabel: document.getElementById('score-label'),
-  sealWrap: document.getElementById('seal-wrap'),
-  seal: document.getElementById('seal'),
-  quizCard: document.getElementById('quiz-card'),
-  resultsCard: document.getElementById('results-card'),
-  finalScore: document.getElementById('final-score'),
-  finalOf: document.getElementById('final-of'),
-  verdictText: document.getElementById('verdict-text'),
-  poolNote: document.getElementById('pool-note'),
-  replayBtn: document.getElementById('replay-btn'),
-  listCard: document.getElementById('list-card'),
-  listItems: document.getElementById('list-items'),
-  listCount: document.getElementById('list-count'),
-  showListBtn: document.getElementById('show-list-btn'),
-  backToQuizBtn: document.getElementById('back-to-quiz-btn'),
-  resetPoolBtn: document.getElementById('reset-pool-btn'),
-};
+    // Global State Variables
+    let usedQuotes = []; 
+    let currentRunHistory = []; 
+    let currentLevel = 1; 
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let correctCount = 0;
 
-document.getElementById('eyebrow-text').textContent = CONFIG.eyebrow;
-document.getElementById('title-text').textContent = CONFIG.title;
-document.getElementById('sub-text').textContent = CONFIG.subtitle;
+    const LEVEL_CONFIG = {
+      1: { questionCount: 5 },
+      2: { questionCount: 10 },
+      3: { questionCount: 15 }
+    };
 
-function shuffle(arr){
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+    // DOM Elements
+    const elements = {
+      levelDisplay: document.getElementById('level-display'),
+      tabs: document.getElementById('progress-tabs'),
+      gameCard: document.getElementById('game-card'),
+      resultsCard: document.getElementById('results-card'),
+      historyCard: document.getElementById('history-card'),
+      historyList: document.getElementById('history-list'),
+      quoteText: document.getElementById('quote-text'),
+      btnA: document.getElementById('btn-a'),
+      btnB: document.getElementById('btn-b'),
+      nextBtn: document.getElementById('next-btn'),
+      sealWrap: document.getElementById('seal-wrap'),
+      sealText: document.getElementById('seal-text'),
+      counter: document.getElementById('question-counter'),
+      startOverBtn: document.getElementById('start-over-btn'),
+      continueBtn: document.getElementById('continue-btn'),
+      scoreDisplay: document.getElementById('score-display'),
+      scoreTotal: document.getElementById('score-total'),
+      verdictText: document.getElementById('verdict-text')
+    };
 
-function resetPool(){
-  pool = shuffle(QUOTES);
-}
+    function initLevel() {
+      const config = LEVEL_CONFIG[currentLevel] || LEVEL_CONFIG[3]; // Default to max if they go past 3
+      let availableQuotes = QUOTES.filter(q => !usedQuotes.includes(q.text));
+      
+      // Shuffle the entire remaining pool
+      let pool = availableQuotes.sort(() => Math.random() - 0.5); 
+      currentQuestions = pool.slice(0, config.questionCount);
+      
+      currentIndex = 0;
+      correctCount = 0;
+      currentRunHistory = [];
+      elements.levelDisplay.innerText = currentLevel;
+      
+      buildTabs();
+      showCard('game');
+      loadQuestion();
+    }
 
-function drawRound(){
-  // If the pool doesn't have enough left for a full round, reshuffle
-  // in whatever's left over so nothing repeats mid-round, then top
-  // up from a fresh shuffle for next time.
-  if (pool.length < CONFIG.roundLength){
-    resetPool();
-  }
-  round = pool.splice(0, CONFIG.roundLength);
-  current = 0;
-  score = 0;
-  results.length = 0;
-}
+    function buildTabs() {
+      elements.tabs.innerHTML = '';
+      for(let i = 0; i < currentQuestions.length; i++){
+        let tab = document.createElement('div');
+        tab.className = 'tab';
+        if(i === 0) tab.classList.add('current');
+        elements.tabs.appendChild(tab);
+      }
+    }
 
-function buildTabs(){
-  els.tabs.innerHTML = '';
-  round.forEach((_, i) => {
-    const t = document.createElement('div');
-    t.className = 'tab';
-    t.id = 'tab-' + i;
-    els.tabs.appendChild(t);
-  });
-  updateTabs();
-}
+    function loadQuestion() {
+      resetStyles();
+      const q = currentQuestions[currentIndex];
+      elements.quoteText.innerText = q.text;
+      elements.counter.innerText = `${currentIndex + 1} of ${currentQuestions.length}`;
+      
+      // Update Tab Visuals
+      Array.from(elements.tabs.children).forEach((t, i) => {
+        t.classList.remove('current');
+        if(i === currentIndex) t.classList.add('current');
+      });
+    }
 
-function updateTabs(){
-  round.forEach((_, i) => {
-    const t = document.getElementById('tab-' + i);
-    t.className = 'tab' +
-      (i === current ? ' current' : '') +
-      (results[i] === true ? ' done' : '') +
-      (results[i] === false ? ' wrong' : '');
-  });
-}
+    function handleGuess(guess) {
+      if(elements.btnA.disabled) return; 
+      
+      const q = currentQuestions[currentIndex];
+      const isCorrect = guess === q.answer;
+      
+      if(isCorrect) correctCount++;
+      
+      usedQuotes.push(q.text);
+      currentRunHistory.push({
+        text: q.text,
+        actual: q.answer
+      });
 
-function renderQuote(){
-  answered = false;
-  const q = round[current];
-  els.quoteText.textContent = q.text;
-  els.choices.innerHTML = '';
-  els.sealWrap.classList.remove('show');
-  els.nextBtn.classList.remove('show');
+      // Styling updates based on guess
+      const clickedBtn = guess === 'A' ? elements.btnA : elements.btnB;
+      clickedBtn.classList.add(isCorrect ? 'correct' : 'incorrect');
+      
+      elements.btnA.disabled = true;
+      elements.btnB.disabled = true;
 
-  [['A', CONFIG.partnerA], ['B', CONFIG.partnerB]].forEach(([key, name]) => {
-    const btn = document.createElement('button');
-    btn.className = 'choice';
-    btn.textContent = name;
-    btn.addEventListener('click', () => handleAnswer(key, btn));
-    els.choices.appendChild(btn);
-  });
+      // Update progress tab
+      const currentTab = elements.tabs.children[currentIndex];
+      currentTab.classList.remove('current');
+      currentTab.classList.add(isCorrect ? 'done' : 'wrong');
 
-  els.progressLabel.textContent = `Quote ${current + 1} of ${round.length}`;
-  els.scoreLabel.textContent = `Score: ${score}`;
-  updateTabs();
-}
+      // Show Wax Seal
+      elements.sealText.innerText = isCorrect ? 'Yes' : 'No';
+      elements.sealText.className = `seal ${isCorrect ? 'yes' : 'no'}`;
+      elements.sealWrap.classList.add('show');
+      
+      elements.nextBtn.classList.add('show');
+    }
 
-function handleAnswer(key, btn){
-  if (answered) return;
-  answered = true;
-  const q = round[current];
-  const correct = key === q.answer;
-  results[current] = correct;
-  if (correct) score++;
+    function resetStyles() {
+      elements.btnA.disabled = false;
+      elements.btnB.disabled = false;
+      elements.btnA.className = 'choice';
+      elements.btnB.className = 'choice';
+      elements.sealWrap.classList.remove('show');
+      elements.nextBtn.classList.remove('show');
+    }
 
-  [...els.choices.children].forEach(child => {
-    child.disabled = true;
-    const isThisCorrectAnswer =
-      (child.textContent === CONFIG.partnerA && q.answer === 'A') ||
-      (child.textContent === CONFIG.partnerB && q.answer === 'B');
-    if (isThisCorrectAnswer) child.classList.add('correct');
-    if (child === btn && !correct) child.classList.add('incorrect');
-  });
+    function nextAction() {
+      if(currentIndex < currentQuestions.length - 1) {
+        currentIndex++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
 
-  els.seal.textContent = correct ? 'Correct' : 'Nice try';
-  els.seal.className = 'seal ' + (correct ? 'yes' : 'no');
-  els.sealWrap.classList.add('show');
+    function showResults() {
+      showCard('results');
+      const total = currentQuestions.length;
+      const passPercentage = correctCount / total;
+      
+      elements.scoreDisplay.innerText = correctCount;
+      elements.scoreTotal.innerText = `of ${total}`;
+      
+      if(passPercentage >= 0.40) {
+        elements.verdictText.innerText = "Nice work! You've unlocked the next level.";
+        elements.continueBtn.innerText = "Next Level";
+        elements.continueBtn.onclick = () => {
+          currentLevel++;
+          initLevel();
+        };
+      } else {
+        elements.verdictText.innerText = "You missed a few too many! Try again to unlock the next level.";
+        elements.continueBtn.innerText = "Try Level Again";
+        elements.continueBtn.onclick = initLevel;
+      }
 
-  els.scoreLabel.textContent = `Score: ${score}`;
-  updateTabs();
+      renderHistory();
+    }
 
-  els.nextBtn.textContent = current === round.length - 1 ? 'See results →' : 'Next quote →';
-  els.nextBtn.classList.add('show');
-}
+    function renderHistory() {
+      elements.historyList.innerHTML = '';
+      currentRunHistory.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        
+        const who = document.createElement('div');
+        who.className = 'who';
+        who.innerText = item.actual === 'A' ? CONFIG.partnerA : CONFIG.partnerB;
+        
+        const text = document.createElement('div');
+        text.className = 'text';
+        text.innerText = item.text;
+        
+        div.appendChild(who);
+        div.appendChild(text);
+        elements.historyList.appendChild(div);
+      });
+      elements.historyCard.classList.remove('hidden');
+    }
 
-els.nextBtn.addEventListener('click', () => {
-  current++;
-  if (current >= round.length){
-    showResults();
-  } else {
-    renderQuote();
-  }
-});
+    function showCard(view) {
+      elements.gameCard.classList.add('hidden');
+      elements.resultsCard.classList.add('hidden');
+      elements.historyCard.classList.add('hidden');
+      
+      if(view === 'game') elements.gameCard.classList.remove('hidden');
+      if(view === 'results') elements.resultsCard.classList.remove('hidden');
+    }
 
-function showResults(){
-  els.quizCard.classList.add('hidden');
-  els.resultsCard.classList.remove('hidden');
-  els.finalScore.textContent = score;
-  els.finalOf.textContent = `out of ${round.length}`;
-  const pct = score / round.length;
-  const verdict = CONFIG.verdicts.find(v => pct >= v.min) || CONFIG.verdicts[CONFIG.verdicts.length - 1];
-  els.verdictText.textContent = verdict.text;
-  els.poolNote.textContent = pool.length > 0
-    ? `${pool.length} quotes left before the set repeats.`
-    : `That's the whole set — next round reshuffles from the top.`;
-}
+    function resetGame() {
+      usedQuotes = [];
+      currentLevel = 1;
+      initLevel();
+    }
 
-els.replayBtn.addEventListener('click', () => {
-  els.resultsCard.classList.add('hidden');
-  els.quizCard.classList.remove('hidden');
-  drawRound();
-  buildTabs();
-  renderQuote();
-});
+    // Event Listeners
+    elements.btnA.addEventListener('click', () => handleGuess('A'));
+    elements.btnB.addEventListener('click', () => handleGuess('B'));
+    elements.nextBtn.addEventListener('click', nextAction);
+    elements.startOverBtn.addEventListener('click', resetGame);
 
-els.resetPoolBtn.addEventListener('click', () => {
-  resetPool();
-  els.resultsCard.classList.add('hidden');
-  els.quizCard.classList.remove('hidden');
-  drawRound();
-  buildTabs();
-  renderQuote();
-});
-
-/* ---------- all-quotes list view ---------- */
-function renderList(){
-  els.listItems.innerHTML = '';
-  els.listCount.textContent = `${QUOTES.length} quotes — answers shown`;
-  QUOTES.forEach(q => {
-    const row = document.createElement('div');
-    row.className = 'list-item';
-    const who = document.createElement('div');
-    who.className = 'who';
-    who.textContent = q.answer === 'A' ? CONFIG.partnerA : CONFIG.partnerB;
-    const text = document.createElement('div');
-    text.className = 'text';
-    text.textContent = q.text;
-    row.appendChild(who);
-    row.appendChild(text);
-    els.listItems.appendChild(row);
-  });
-}
-
-els.showListBtn.addEventListener('click', () => {
-  renderList();
-  els.quizCard.classList.add('hidden');
-  els.resultsCard.classList.add('hidden');
-  document.getElementById('tabs').classList.add('hidden');
-  els.listCard.classList.remove('hidden');
-});
-
-els.backToQuizBtn.addEventListener('click', () => {
-  els.listCard.classList.add('hidden');
-  document.getElementById('tabs').classList.remove('hidden');
-  els.quizCard.classList.remove('hidden');
-});
-
-/* ---------- init ---------- */
-resetPool();
-drawRound();
-buildTabs();
-renderQuote();
-</script>
+    // Boot Up
+    initLevel();
+  </script>
 </body>
 </html>
