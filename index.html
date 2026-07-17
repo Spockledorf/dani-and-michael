@@ -86,7 +86,9 @@
     const LEVEL_CONFIG = {
       1: { questionCount: 5 },
       2: { questionCount: 10 },
-      3: { questionCount: 15 }
+      3: { questionCount: 15 },
+      4: { questionCount: 20 },
+      5: { questionCount: 25 }
     };
 
     // DOM Elements
@@ -112,7 +114,7 @@
     };
 
     function initLevel() {
-      const config = LEVEL_CONFIG[currentLevel] || LEVEL_CONFIG[3]; // Default to max if they go past 3
+      const config = LEVEL_CONFIG[currentLevel] || LEVEL_CONFIG[5]; // Default to max if they go past 5
       let availableQuotes = QUOTES.filter(q => !usedQuotes.includes(q.text));
       
       // Shuffle the entire remaining pool

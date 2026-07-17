@@ -5,7 +5,7 @@
      { text: "The quote goes here", answer: "A" },
      { text: "Another quote here",  answer: "B" },
 
-   - "answer" must be "A" or "B" — A = partnerA, B = partnerB,
+   - "answer" must be "A" or "B" — A = partnerA (Dani), B = partnerB (Michael),
      as set in index.html (CONFIG.partnerA / CONFIG.partnerB).
    - Keep the quotes inside straight double quotes "like this".
    - Don't forget the comma at the end of each line.
