@@ -89,7 +89,6 @@ const QUOTES = [
   { text: "I swear I've slapped you before...have I not??", answer: "A" },
   { text: "yeah, I function like a normal human being...", answer: "B" },
   { text: "But you're not a vampire... so, it doesn't count...", answer: "A" },
-  { text: "I'll make out with you if you don't give me a ticket, officer...", answer: "A" },
   { text: "Ya know...The Easter Bunny isn't Jesus.", answer: "B" },
   { text: "America doesn't have any oceans..", answer: "A" },
   { text: "It's nice to rub your back with a spatula.", answer: "B" },
