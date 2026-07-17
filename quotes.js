@@ -73,7 +73,6 @@ const QUOTES = [
   { text: "I like the chunks. They're like little surprises.", answer: "B" },
   { text: "You're pretty and it makes me high.", answer: "B" },
   { text: "Have I told you about my calves...about the hair...that's gone?", answer: "B" },
-  { text: "Michael we can kiss now! She's dead!", answer: "A" },
   { text: "I can't feel your spine very well with my elbow.", answer: "A" },
   { text: "I burped and my head hit the freezer.", answer: "B" },
   { text: "All raw broccoli is bad broccoli", answer: "A" },
