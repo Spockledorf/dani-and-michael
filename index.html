@@ -116,7 +116,13 @@
     function initLevel() {
       const config = LEVEL_CONFIG[currentLevel] || LEVEL_CONFIG[5]; // Default to max if they go past 5
       let availableQuotes = QUOTES.filter(q => !usedQuotes.includes(q.text));
-      
+
+      // Not enough fresh quotes left to fill this round — recycle the pool
+      if (availableQuotes.length < config.questionCount) {
+        usedQuotes = [];
+        availableQuotes = QUOTES.slice();
+      }
+
       // Shuffle the entire remaining pool
       let pool = availableQuotes.sort(() => Math.random() - 0.5); 
       currentQuestions = pool.slice(0, config.questionCount);
@@ -170,7 +176,12 @@
 
       // Styling updates based on guess
       const clickedBtn = guess === 'A' ? elements.btnA : elements.btnB;
-      clickedBtn.classList.add(isCorrect ? 'correct' : 'incorrect');
+      const correctBtn = q.answer === 'A' ? elements.btnA : elements.btnB;
+
+      correctBtn.classList.add('correct');
+      if (!isCorrect) {
+        clickedBtn.classList.add('incorrect');
+      }
       
       elements.btnA.disabled = true;
       elements.btnB.disabled = true;
